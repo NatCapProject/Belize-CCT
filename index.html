@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CC Tourism-Develop</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
+    <link rel="stylesheet" href="http://geosprocket.com/assets/bootstrap/css/bootstrap.css" />
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.ie.css" />
+    <![endif]-->
+    <style>
+      html, body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+ 
+    #layer_selector {
+        position: absolute;
+        top: 4px;
+        right: 30px;
+        padding: 0;
+      }
+    </style>
+
+	
+    <!--switch between the different themes changing the stylesheet below - light-theme.css |dark-theme.css -->
+    <link rel="stylesheet" href="css/light-theme.css">
+    <link rel="stylesheet" href="css/makeitresponsive.css">
+	<link 
+        rel="stylesheet" 
+        href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"
+    />
+    <link 
+        rel="stylesheet" 
+        href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css"
+    />
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js">
+	</script>
+    <script
+        src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js">
+    </script>
+	<script type="text/javascript" src="https://www.google.com/jsapi">
+	</script>
+	<script src="http://geosprocket.com/assets/bootstrap/js/bootstrap.min.js">
+	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+	</script>
+	
+  </head>
+  
+  <body>
+    <div class="map" id="map"></div>
+    <div class="sidepanel">
+        <h2><a href="http://wwf.panda.org/what_we_do/where_we_work/mesoamerican_reef/occtdb/" target="_blank">Identifying Opportunities for Climate-Compatible Tourism Development in Belize</a></h2>
+		<h3>Instructions</h3>
+        Click the polygon (<img src="LeafletPoly_Button.png">) or rectangle (<img src="LeafletSquare_Button.png">) draw buttons to create an area of interest.  Coastal exposure, population and tourism values for the selected area will be summarized below.  Refresh the page to clear your results.
+		<h3>Population and Tourism Summary</h3>
+		<div id="Social"></div>
+		<div id="chartScatter_div" style="width: 350px; height: 200px;"></div>
+          <p><p><p><hr>Map portal by <a href="http://www.naturalcapitalproject.org/people.html#Verutes" target="_blank">Gregg Verutes</a> and Melissa Rosa<br><p>
+		  <img src="Logos5_sm.png">
+        </div>
+      </div>
+    </div>
+	
+	<script>
+		google.load("visualization", "1", {packages:["corechart"]});
+		google.setOnLoadCallback(drawScatterChart);
+		function drawScatterChart(buildScatter, arr1, arr2) {
+			var data = new google.visualization.DataTable();
+			data.addColumn('number', 'Index Score');
+			data.addColumn('number', 'Index Score, Population');
+			data.addColumn({type: 'string', role: 'style'});
+			{ role: 'style' }
+			for ( var i = 0 ; i < arr2.length; i++ ) {
+				if (arr1[i] < 2.21359443665){
+					data.addRow([arr1[i], Math.round(arr2[i]), 'color: #0080ff']);
+				}
+				else if (arr1[i] > 6.25574207306){
+					data.addRow([arr1[i], Math.round(arr2[i]), 'color: #ff4d4d']);
+				}
+				else {
+					data.addRow([arr1[i], Math.round(arr2[i]), 'color: #ffff00']);
+				}
+			}
+			
+			var options = {
+			  title: 'Graph of Individual Coastline Segments\n(Current Exposure vs. Coastal Population)',
+			  hAxis: {title: 'Exposure Index Score\n (Lowest = 0 to Highest = 16)', minValue: 1, maxValue: 5},
+			  vAxis: {title: 'Population Count', minValue: 0, maxValue: 200},
+			  legend: 'none',
+			  pointSize: 2,
+			  colors: ['#087037']
+			};
+
+			var chart = new google.visualization.ScatterChart(buildScatter);
+			chart.draw(data, options);
+		  }
+	
+
+        // *set base map and controls*
+        var map = new L.Map('map', {
+          zoomControl: true,
+          center: [17.5456, -87.9529],
+          zoom: 9,
+		  minZoom: 8,
+		  maxZoom: 13
+        });
+
+		// scale and base map
+		L.control.scale({ position: 'topright' }).addTo(map);
+        L.tileLayer('http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.png',
+		{attribution: 'Stamen'}).addTo(map);
+	
+		//L.tileLayer('http://a.tiles.mapbox.com/v3/geointerest.BelizeRecreation/{z}/{x}/{y}.png').addTo(map);
+		L.tileLayer('http://a.tiles.mapbox.com/v3/geointerest.BelizeHabitats/{z}/{x}/{y}.png').addTo(map);
+		//L.tileLayer('http://a.tiles.mapbox.com/v3/geointerest.BelizeCP/{z}/{x}/{y}.png').addTo(map);
+		L.tileLayer('http://a.tiles.mapbox.com/v3/geointerest.BelizeBaseMap/{z}/{x}/{y}.png').addTo(map);
+
+		
+		// draw control
+		L.drawLocal.draw.toolbar.buttons.polygon = 'Draw a polygon';
+			var drawControl = new L.Control.Draw({
+				position: 'topright',
+				draw: {
+					polyline: false,
+					polygon: {
+						allowIntersection: false,
+						showArea: true,
+						drawError: {
+							color: '#b00b00',
+							timeout: 1000
+						},
+						shapeOptions: {
+							color: '#bada55'
+						}
+					},
+					circle: false,
+					marker: false
+				}
+			});
+			map.addControl(drawControl);
+
+		// add commas to numbers > 1000
+		function numberWithCommas(x) {
+			return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		}	
+		
+		// round to two hundredths
+		function roundToTwo(value) {
+			return(Math.round(value * 100) / 100);
+		}
+
+		function updateLayer(query, layer){
+			// run a query to select portions of a layer
+		    var sql = cartodb.SQL({ user: 'natcap' });
+			var arr1 = [];
+			var arr2 = [];
+
+			
+			sql.execute("SELECT * FROM ("+query+") a").done(function(data) {
+				// warning if n < 10
+				if (data.total_rows < 10){
+					alert("WARNING! Your selection contains less than 10 coastal segments.  Results can be misleading with a small sample size.");
+					}
+					
+				// grab index scores and total pop
+				for (var i = 0; i < data.total_rows; i++) {
+					arr1.push(data.rows[i].vuln_s1);
+					arr2.push(data.rows[i].tot_pop);
+				}
+						
+				
+				// draw scatter and bar plot
+				drawScatterChart(document.getElementById('chartScatter_div'), arr1, arr2);
+				
+				// generate a new CartoCSS to apply
+				var cartocss = "#rec_cv_mergepts {[ vuln_s1 > 0]{ marker-fill: #ffff00; marker-fill-opacity: 1.0; marker-line-width: 0.5; marker-line-opacity: 0.0; marker-width: 4; marker-placement: point; marker-type: ellipse; marker-allow-overlap: true; [vuln_s1 < 2.21359443665]{ marker-fill: #0080ff;}[vuln_s1 > 6.25574207306]{ marker-fill: #ff4d4d;}[zoom = 9]{marker-width: 3;}[zoom = 10]{marker-width: 4;}[zoom = 11]{marker-width: 6;}[zoom = 12]{marker-width: 8.5;}[zoom = 13]{marker-width: 12;}}}";
+
+		    	// set our query to filter the layer
+      			layer.setSQL(query);
+      			// set our new Style
+		    	layer.setCartoCSS(cartocss)
+				
+		     });
+	
+		
+			sql.execute("SELECT * FROM ("+query+") a").done(function(data) {
+				var sumPop = [];
+				var sumRecV = [];
+				var sumRecE = [];
+				var c_h = [];
+				var c_nh = [];
+				
+				// grab index scores and total pop
+				for (var i = 0; i < data.total_rows; i++) {
+					sumPop.push(data.rows[i].tot_pop);
+					sumRecV.push(data.rows[i].ud_est_n);
+					sumRecE.push(data.rows[i].ud_exp);
+					if (data.rows[i].vuln_s1 > 6.25574207306) {c_h.push(data.rows[i].tot_pop);}
+					if (data.rows[i].vuln_s5 > 6.25574207306) {c_nh.push(data.rows[i].tot_pop);}
+				}
+				
+				var sum_pop = 0;
+				var sum_rec1 = 0;		
+				var sum_rec2 = 0;						
+				var sum_c_h = 0;
+				var sum_c_nh = 0; 		
+		
+				for ( var i = 0; i < sumPop.length; i++ ){ sum_pop += sumPop[i]; sum_rec1 += sumRecV[i]; sum_rec2 += sumRecE[i]; }
+				for ( var i = 0; i < c_h.length; i++ ){ sum_c_h += c_h[i]; }
+				for ( var i = 0; i < c_nh.length; i++ ){ sum_c_nh += c_nh[i]; }	
+				
+				//write results to right side panel
+				document.getElementById("Social").innerHTML = 
+				"<li>People living within 1km of coastline: <b>"+numberWithCommas(Math.round(sum_pop))+"</b></li> >> Habitats reduce risk to <b>"+numberWithCommas(Math.round(sum_c_nh - sum_c_h))+"</b> people*<li>Tourism visitor-days: <b>"+numberWithCommas(Math.round(sum_rec1))+"</b> / year</li><li>Tourism-related expenditures: <b>"+numberWithCommas(Math.round(sum_rec2))+"</b> BZ $ / year</li><font size=1>*Numbers less than 10 indicate low populations of people on a larger scale than 1km<sup>2</sup>.</font><p></p><img src=\"CV_Legend.png\">";
+			});
+		}
+		
+		// bottom to top
+		cartodb.createLayer(map, 'http://natcap.cartodb.com/api/v2/viz/32b69984-6913-11e4-83cb-0e018d66dc29/viz.json').addTo(map);	
+		// add CV pts
+        cartodb.createLayer(map, 'http://natcap.cartodb.com/api/v2/viz/96383b52-6945-11e4-b25f-0e4fddd5de28/viz.json')
+        .addTo(map)
+        .on('done', function(layer) {
+		
+        	// keep track of all draw objects
+			var drawnItems = new L.FeatureGroup();
+			map.addLayer(drawnItems);
+
+			// set the title to show on the polygon button
+			map.on('draw:created', function (e) {
+			var type = e.layerType,
+			draw_layer = e.layer;
+
+			// show the polygon on the map
+			drawnItems.addLayer(draw_layer);
+
+			// get the coordinates of the polygon we just drew
+			var poly = draw_layer.getLatLngs();
+			var sql_poly = [];
+			for (i in poly){
+				sql_poly.push("CDB_LatLng("+poly[i].lat+","+poly[i].lng+")")
+				}
+				// SQL polygon must be a CLOSED loop
+				sql_poly.push("CDB_LatLng("+poly[0].lat+","+poly[0].lng+")")
+
+				// join drawn coordinates and a SQL query
+				var query = "SELECT * FROM rec_cv_mergepts WHERE ST_Intersects(the_geom, ST_MakePolygon(ST_MakeLine(Array["+sql_poly.join()+"])))";
+				
+				// run function to update SQL and Style
+      			updateLayer(query, layer.getSubLayer(0))
+			});
+        })
+        .on('error', function(err) {
+          alert("some error occurred: " + err);
+        });
+
+	</script>
+  </body>
+</html>
