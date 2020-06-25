@@ -34,22 +34,22 @@
     <link rel="stylesheet" href="css/makeitresponsive.css">
 	<link 
         rel="stylesheet" 
-        href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"
+        href="css/eaflet.css"
     />
     <link 
         rel="stylesheet" 
-        href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css"
+        href="css/leaflet.draw.css"
     />
     <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js">
 	</script>
     <script
-        src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js">
+        src="js/leaflet.draw.js">
     </script>
 	<script type="text/javascript" src="https://www.google.com/jsapi">
 	</script>
 	<script src="http://geosprocket.com/assets/bootstrap/js/bootstrap.min.js">
 	</script>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+	<script src="js/jquery.js">
 	</script>
 	
   </head>
@@ -57,14 +57,15 @@
   <body>
     <div class="map" id="map"></div>
     <div class="sidepanel">
-        <h2><a href="http://wwf.panda.org/what_we_do/where_we_work/mesoamerican_reef/occtdb/" target="_blank">Identifying Opportunities for Climate-Compatible Tourism Development in Belize</a></h2>
+        <h2><a href="https://wwf.panda.org/knowledge_hub/where_we_work/mesoamerican_reef/occtdb/" target="_blank"><br>Identifying Opportunities for Climate-Compatible Tourism in Belize</a></h2>
 		<h3>Instructions</h3>
-        Click the polygon (<img src="LeafletPoly_Button.png">) or rectangle (<img src="LeafletSquare_Button.png">) draw buttons to create an area of interest.  Coastal exposure, population and tourism values for the selected area will be summarized below.  Refresh the page to clear your results.
+        <li>Click the rectangle button<!--(<img src="img/LeafletSquare_Button.png">)--> to draw your area of interest.</li>
+        <li> Coastal exposure, population, and tourism value for the selected area will be summarized below.</li>
 		<h3>Population and Tourism Summary</h3>
 		<div id="Social"></div>
 		<div id="chartScatter_div" style="width: 350px; height: 200px;"></div>
-          <p><p><p><hr>Map portal by <a href="http://www.naturalcapitalproject.org/people.html#Verutes" target="_blank">Gregg Verutes</a> and Melissa Rosa<br><p>
-		  <img src="Logos5_sm.png">
+          <p><p><p><hr>Dashboard by: <a href="http://cons.scienceontheweb.net/" target="_blank">Gregg Verutes</a> and Melissa Rosa<br>
+		  <img src="img/Logos5_sm.jpg">
         </div>
       </div>
     </div>
@@ -107,14 +108,15 @@
         // *set base map and controls*
         var map = new L.Map('map', {
           zoomControl: true,
-          center: [17.5456, -87.9529],
-          zoom: 9,
+          center: [17.1456, -87.9529],
+          zoom: 8,
 		  minZoom: 8,
 		  maxZoom: 13
         });
 
 		// scale and base map
-		L.control.scale({ position: 'topright' }).addTo(map);
+		
+
         L.tileLayer('http://c.tile.stamen.com/watercolor/{z}/{x}/{y}.png',
 		{attribution: 'Stamen'}).addTo(map);
 	
@@ -130,22 +132,14 @@
 				position: 'topright',
 				draw: {
 					polyline: false,
-					polygon: {
-						allowIntersection: false,
-						showArea: true,
-						drawError: {
-							color: '#b00b00',
-							timeout: 1000
-						},
-						shapeOptions: {
-							color: '#bada55'
-						}
-					},
+					polygon: false,
 					circle: false,
 					marker: false
 				}
 			});
 			map.addControl(drawControl);
+
+		L.control.scale({ position: 'bottomleft' }).addTo(map);
 
 		// add commas to numbers > 1000
 		function numberWithCommas(x) {
@@ -219,7 +213,7 @@
 				
 				//write results to right side panel
 				document.getElementById("Social").innerHTML = 
-				"<li>People living within 1km of coastline: <b>"+numberWithCommas(Math.round(sum_pop))+"</b></li> >> Habitats reduce risk to <b>"+numberWithCommas(Math.round(sum_c_nh - sum_c_h))+"</b> people*<li>Tourism visitor-days: <b>"+numberWithCommas(Math.round(sum_rec1))+"</b> / year</li><li>Tourism-related expenditures: <b>"+numberWithCommas(Math.round(sum_rec2))+"</b> BZ $ / year</li><font size=1>*Numbers less than 10 indicate low populations of people on a larger scale than 1km<sup>2</sup>.</font><p></p><img src=\"CV_Legend.png\">";
+				"<li>People living within 1km of coastline: <b>"+numberWithCommas(Math.round(sum_pop))+"</b></li> >> Habitats reduce risk to <b>"+numberWithCommas(Math.round(sum_c_nh - sum_c_h))+"</b> people*<li>Tourism visitor-days: <b>"+numberWithCommas(Math.round(sum_rec1))+"</b> / year</li><li>Tourism-related expenditures: <b>"+numberWithCommas(Math.round(sum_rec2))+"</b> BZ $ / year</li><font size=1>*Numbers less than 10 indicate low populations of people on a larger scale than 1km<sup>2</sup>.</font><p></p><img src=\"img/CV_Legend.png\">";
 			});
 		}
 		
